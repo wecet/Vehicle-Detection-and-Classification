@@ -3,6 +3,8 @@ import numpy as np
 import argparse
 import cv2
 
+# https://www.pyimagesearch.com/2017/09/11/object-detection-with-deep-learning-and-opencv/
+
 # PROTOTXT = 
 # MODEL = 
 # FILENAME = 
