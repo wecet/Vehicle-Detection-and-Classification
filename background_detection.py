@@ -32,7 +32,7 @@ def detect_background(file):
             break
 
     medianFrame = np.median(bg_frames, axis=0).astype(dtype=np.uint8)
-    cv2.imout("extracted_background.jpg", medianFrame)
+    cv2.imwrite("extracted_background.jpg", medianFrame)
     cv2.imshow("Median Frame", medianFrame)
     cv2.waitKey(0)
 
@@ -45,3 +45,5 @@ def detect_background(file):
     writer.release()
     vid.release()
     cv2.destroyAllWindows()
+
+detect_background("20200323_155250.mp4")
