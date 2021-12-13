@@ -2,6 +2,7 @@
 import numpy as np
 import argparse
 import cv2
+import os
 
 # https://www.pyimagesearch.com/2017/09/11/object-detection-with-deep-learning-and-opencv/
 
@@ -10,66 +11,89 @@ import cv2
 # FILENAME = 
 # CONFIDENCE = 
 
-def object_detection(file):
-    pass
+def object_detection(filename):
+    # initialize the list of class labels MobileNet SSD was trained to
+    # detect, then generate a set of bounding box colors for each class
+    #CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
+    #	"bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
+    #	"dog", "horse", "motorbike", "person", "pottedplant", "sheep",
+    #	"sofa", "train", "tvmonitor"]
 
-# initialize the list of class labels MobileNet SSD was trained to
-# detect, then generate a set of bounding box colors for each class
-CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
-	"bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
-	"dog", "horse", "motorbike", "person", "pottedplant", "sheep",
-	"sofa", "train", "tvmonitor"]
-COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
+    labelspath = os.path.sep.join("YOLO Model", "darknet", "data", "coco.names")
+    configpath = os.path.sep.join("YOLO Model", "darknet", "cfg", "yolov3.cfg")
+    weightspath = os.path.sep.join("YOLO Model", "darknet", "yolov3.weights")
 
-# load our serialized model from disk
-print("[INFO] loading model...")
-net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 
-# load the input image and construct an input blob for the image
-# by resizing to a fixed 300x300 pixels and then normalizing it
-# (note: normalization is done via the authors of the MobileNet SSD
-# implementation)
+    LABELS = open(labelspath).read().strip().split("\n")
 
-# image = cv2.imread(args["image"])
-vid = cv2.VideoCapture("filename")
-ret = True
+    COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
-while(ret):
-    ret, frame = vid.read()
+    # load our serialized model from disk
+    print("[INFO] loading model...")
+    net = cv2.dnn.readNetFromCaffe(configpath, weightspath)
+
+    # load the input image and construct an input blob for the image
+    # by resizing to a fixed 300x300 pixels and then normalizing it
+    # (note: normalization is done via the authors of the MobileNet SSD
+    # implementation)
     
-    (h, w) = image.shape[:2]
-    blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)), 0.007843,
-        (300, 300), 127.5)
+    fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+    writer = cv2.VideoWriter('objectdetection.avi', fourcc, 30, (800, 600), True)
 
-    # pass the blob through the network and obtain the detections and
-    # predictions
-    print("[INFO] computing object detections...")
-    net.setInput(blob)
-    detections = net.forward()
-
-    # loop over the detections
-    for i in np.arange(0, detections.shape[2]):
-        # extract the confidence (i.e., probability) associated with the
-        # prediction
-        confidence = detections[0, 0, i, 2]
-        # filter out weak detections by ensuring the `confidence` is
-        # greater than the minimum confidence
-        if confidence > args["confidence"]:
-            # extract the index of the class label from the `detections`,
-            # then compute the (x, y)-coordinates of the bounding box for
-            # the object
-            idx = int(detections[0, 0, i, 1])
-            box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
-            (startX, startY, endX, endY) = box.astype("int")
-            # display the prediction
-            label = "{}: {:.2f}%".format(CLASSES[idx], confidence * 100)
-            print("[INFO] {}".format(label))
-            cv2.rectangle(frame, (startX, startY), (endX, endY),
-                COLORS[idx], 2)
-            y = startY - 15 if startY - 15 > 15 else startY + 15
-            cv2.putText(frame, label, (startX, y),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
+    # image = cv2.imread(args["image"])
+    vid = cv2.VideoCapture(filename)
+    ret = True
     
-    # show the output image
-    cv2.imshow("Output", frame)
-    #cv2.waitKey(0)
+    fr_no = 0
+    fr_limit = 100
+
+    while(ret):
+        ret, frame = vid.read()
+        
+        (h, w) = image.shape[:2]
+        blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)), 0.007843,
+            (300, 300), 127.5)
+
+        # pass the blob through the network and obtain the detections and
+        # predictions
+        print("[INFO] computing object detections...")
+        net.setInput(blob)
+        detections = net.forward()
+
+        # loop over the detections
+        for i in np.arange(0, detections.shape[2]):
+            # extract the confidence (i.e., probability) associated with the
+            # prediction
+            confidence = detections[0, 0, i, 2]
+            # filter out weak detections by ensuring the `confidence` is
+            # greater than the minimum confidence
+            if confidence > args["confidence"]:
+                # extract the index of the class label from the `detections`,
+                # then compute the (x, y)-coordinates of the bounding box for
+                # the object
+                idx = int(detections[0, 0, i, 1])
+                box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
+                (startX, startY, endX, endY) = box.astype("int")
+                # display the prediction
+                label = "{}: {:.2f}%".format(CLASSES[idx], confidence * 100)
+                print("[INFO] {}".format(label))
+                cv2.rectangle(frame, (startX, startY), (endX, endY),
+                    COLORS[idx], 2)
+                y = startY - 15 if startY - 15 > 15 else startY + 15
+                cv2.putText(frame, label, (startX, y),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
+                
+        
+        writer.write(cv2.resize(frame,(800, 600)))
+        
+        if fr_no >= fr_limit:
+            break
+        
+        fr_no += 1
+        
+        # show the output image
+        #cv2.imshow("Output", frame)
+        #cv2.waitKey(0)
+    
+    writer.release()
+    vid.release()
