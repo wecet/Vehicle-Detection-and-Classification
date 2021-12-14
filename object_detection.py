@@ -6,12 +6,7 @@ import os
 
 # https://www.pyimagesearch.com/2017/09/11/object-detection-with-deep-learning-and-opencv/
 
-# PROTOTXT = 
-# MODEL = 
-# FILENAME = 
-# CONFIDENCE = 
-
-def object_detection(filename):
+def object_detection(filename, conf_t=0.3, fr_limit=200):
     # initialize the list of class labels MobileNet SSD was trained to
     # detect, then generate a set of bounding box colors for each class
     #CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
@@ -22,11 +17,10 @@ def object_detection(filename):
     labelspath = os.path.sep.join("YOLO Model", "darknet", "data", "coco.names")
     configpath = os.path.sep.join("YOLO Model", "darknet", "cfg", "yolov3.cfg")
     weightspath = os.path.sep.join("YOLO Model", "darknet", "yolov3.weights")
-
-
+    
     LABELS = open(labelspath).read().strip().split("\n")
 
-    COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
+    COLORS = np.random.uniform(0, 255, size=(len(LABELS), 3))
 
     # load our serialized model from disk
     print("[INFO] loading model...")
@@ -45,12 +39,11 @@ def object_detection(filename):
     ret = True
     
     fr_no = 0
-    fr_limit = 100
 
     while(ret):
         ret, frame = vid.read()
         
-        (h, w) = image.shape[:2]
+        (h, w) = frame.shape[:2]
         blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)), 0.007843,
             (300, 300), 127.5)
 
@@ -67,7 +60,7 @@ def object_detection(filename):
             confidence = detections[0, 0, i, 2]
             # filter out weak detections by ensuring the `confidence` is
             # greater than the minimum confidence
-            if confidence > args["confidence"]:
+            if confidence > conf_t:
                 # extract the index of the class label from the `detections`,
                 # then compute the (x, y)-coordinates of the bounding box for
                 # the object
@@ -75,7 +68,7 @@ def object_detection(filename):
                 box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
                 (startX, startY, endX, endY) = box.astype("int")
                 # display the prediction
-                label = "{}: {:.2f}%".format(CLASSES[idx], confidence * 100)
+                label = "{}: {:.2f}%".format(LABELS[idx], confidence * 100)
                 print("[INFO] {}".format(label))
                 cv2.rectangle(frame, (startX, startY), (endX, endY),
                     COLORS[idx], 2)
