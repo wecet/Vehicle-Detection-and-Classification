@@ -64,7 +64,7 @@ def get_prediction(img_cv, threshold):
   
 
 
-def object_detection_api(vid_path, threshold=0.5, rect_th=2, text_size=0.5, text_th=2, fr_limit=500):
+def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text_th=2, fr_limit=500):
     """
     object_detection_api
     parameters:
@@ -109,6 +109,9 @@ def object_detection_api(vid_path, threshold=0.5, rect_th=2, text_size=0.5, text
             cv2.putText(frame,pred_cls[i], pt1, cv2.FONT_HERSHEY_SIMPLEX, text_size, list(color_index).index(pred_cls[i]),thickness=text_th)
         
         writer.write(cv2.resize(frame,(800, 600)))
+        
+        if fr_no%100 == 0:
+            print(fr_no)
         
         if fr_no >= fr_limit:
             break
