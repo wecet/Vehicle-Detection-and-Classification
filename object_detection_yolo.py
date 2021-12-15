@@ -37,7 +37,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
     # implementation)
     
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-    writer = cv2.VideoWriter('output/objectdetection.avi', fourcc, 30, (800, 600), True)
+    writer = cv2.VideoWriter('output/objectdetection_yolo.avi', fourcc, 30, (800, 600), True)
 
     # image = cv2.imread(args["image"])
     vid = cv2.VideoCapture(filename)

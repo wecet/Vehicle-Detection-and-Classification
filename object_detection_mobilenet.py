@@ -9,7 +9,7 @@ from imutils.video import VideoStream
 
 # https://www.pyimagesearch.com/2017/09/11/object-detection-with-deep-learning-and-opencv/
 
-def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
+def object_detection(filename, conf_t=0.2, fr_limit=300):
     # initialize the list of class labels MobileNet SSD was trained to
     # detect, then generate a set of bounding box colors for each class
     CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
@@ -18,15 +18,15 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
         "sofa", "train", "tvmonitor"]
     COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
     
-    configpath = os.path.join("YOLO Model", "darknet", "cfg", "yolov3.cfg")
-    weightspath = os.path.join("YOLO Model", "darknet", "yolov3.weights")
+    prototxtpath = os.path.join("MobileNet", "pi-object-detection", "MobileNetSSD_deploy.prototxt.txt")
+    modelpath = os.path.join("MobileNet", "pi-object-detection", "MobileNetSSD_deploy.caffemodel")
     
 
     COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
     # load our serialized model from disk
     print("[INFO] loading model...")
-    net = cv2.dnn.readNetFromCaffe(configpath, weightspath)
+    net = cv2.dnn.readNetFromCaffe(prototxtpath, modelpath)
 
     # load the input image and construct an input blob for the image
     # by resizing to a fixed 300x300 pixels and then normalizing it
@@ -34,7 +34,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
     # implementation)
     
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-    writer = cv2.VideoWriter('output/objectdetection.avi', fourcc, 30, (800, 600), True)
+    writer = cv2.VideoWriter('output/objectdetection_mobilenet.avi', fourcc, 30, (800, 600), True)
 
     # image = cv2.imread(args["image"])
     vid = cv2.VideoCapture(filename)
@@ -59,7 +59,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
 
         # pass the blob through the network and obtain the detections and
         # predictions
-        print("[INFO] computing object detections...")
+        #print("[INFO] computing object detections...")
         net.setInput(blob)
         detections = net.forward()
         
@@ -80,10 +80,10 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
                 # display the prediction
                 label = "{}: {:.2f}%".format(CLASSES[idx], confidence * 100)
                 #print("[INFO] {}".format(label))
-                cv2.rectangle(image, (startX, startY), (endX, endY),
+                cv2.rectangle(frame, (startX, startY), (endX, endY),
                     COLORS[idx], 2)
                 y = startY - 15 if startY - 15 > 15 else startY + 15
-                cv2.putText(image, label, (startX, y),
+                cv2.putText(frame, label, (startX, y),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
         
         writer.write(cv2.resize(frame,(800, 600)))
