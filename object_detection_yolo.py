@@ -19,7 +19,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
 
     labelspath = os.path.join("YOLO Model", "darknet", "data", "coco.names")
     configpath = os.path.join("YOLO Model", "darknet", "cfg", "yolov3.cfg")
-    weightspath = os.path.join("YOLO Model", "darknet", "yolov3.weights")
+    weightspath = os.path.join("YOLO Model", "yolov3.weights")
     
     LABELS = open(labelspath).read().strip().split("\n")
 
