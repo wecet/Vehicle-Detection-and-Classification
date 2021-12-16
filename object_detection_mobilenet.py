@@ -9,7 +9,7 @@ from imutils.video import VideoStream
 
 # https://www.pyimagesearch.com/2017/09/11/object-detection-with-deep-learning-and-opencv/
 
-def object_detection(filename, conf_t=0.2, fr_limit=300):
+def object_detection(filename, conf_t=0.2, fr_limit=500):
     # initialize the list of class labels MobileNet SSD was trained to
     # detect, then generate a set of bounding box colors for each class
     CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
@@ -98,7 +98,7 @@ def object_detection(filename, conf_t=0.2, fr_limit=300):
         #cv2.waitKey(0)
         
     
-    print("[INFO] YOLO took {:.6f} seconds".format(time.time() - start))
+    print("[INFO] YOLO took {:.3f} minutes".format((time.time() - start)/60))
     
     writer.release()
     vid.release()

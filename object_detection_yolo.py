@@ -22,8 +22,6 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
     weightspath = os.path.join("YOLO Model", "darknet", "yolov3.weights")
     
     LABELS = open(labelspath).read().strip().split("\n")
-    
-    print(len(LABELS))
 
     COLORS = np.random.uniform(0, 255, size=(len(LABELS), 3))
 
@@ -132,7 +130,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
         #cv2.waitKey(0)
         
     
-    print("[INFO] YOLO took {:.6f} seconds".format(time.time() - start))
+    print("[INFO] YOLO took {:.3f} minutes".format((time.time() - start)/60))
     
     writer.release()
     vid.release()

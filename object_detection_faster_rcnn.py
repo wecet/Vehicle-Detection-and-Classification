@@ -118,7 +118,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
         
         fr_no += 1
         
-    print("[INFO] YOLO took {:.6f} seconds".format(time.time() - start))
+    print("[INFO] YOLO took {:.3f} minutes".format((time.time() - start)/60))
     
     writer.release()
     vid.release()
