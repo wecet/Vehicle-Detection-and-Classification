@@ -93,10 +93,6 @@ def object_detection(filename, conf_t=0.2, fr_limit=500):
         
         fr_no += 1
         
-        # show the output image
-        #cv2.imshow("Output", frame)
-        #cv2.waitKey(0)
-        
     
     print("[INFO] YOLO took {:.3f} minutes".format((time.time() - start)/60))
     

@@ -17,10 +17,6 @@ configpath = os.path.join("Mask RCNN", "mask_rcnn", "mask-rcnn-coco","mask_rcnn_
 def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=500):
     labels = open(labelspath).read().strip().split("\n")
     
-    #colors = np.array([
-    #    np.array(c.split(",")).astype("int") 
-    #    for c in open(colorspath).read().strip().split('\n')], dtype='uint8')
-    
     colors = np.random.uniform(0, 255, size=(len(labels), 3))
     
     print("[INFO] loading model...")

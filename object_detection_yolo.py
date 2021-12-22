@@ -10,13 +10,7 @@ from imutils.video import VideoStream
 # https://www.pyimagesearch.com/2017/09/11/object-detection-with-deep-learning-and-opencv/
 
 def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
-    # initialize the list of class labels MobileNet SSD was trained to
-    # detect, then generate a set of bounding box colors for each class
-    #CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
-    #	"bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
-    #	"dog", "horse", "motorbike", "person", "pottedplant", "sheep",
-    #	"sofa", "train", "tvmonitor"]
-
+    
     labelspath = os.path.join("YOLO Model", "darknet", "data", "coco.names")
     configpath = os.path.join("YOLO Model", "darknet", "cfg", "yolov3.cfg")
     weightspath = os.path.join(os.path.dirname(os.getcwd()), "Data", "yolov3.weights")
@@ -29,15 +23,9 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
     print("[INFO] loading model...")
     net = cv2.dnn.readNetFromDarknet(configpath, weightspath)
 
-    # load the input image and construct an input blob for the image
-    # by resizing to a fixed 300x300 pixels and then normalizing it
-    # (note: normalization is done via the authors of the MobileNet SSD
-    # implementation)
-    
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
     writer = cv2.VideoWriter('output/objectdetection_yolo.avi', fourcc, 30, (800, 600), True)
 
-    # image = cv2.imread(args["image"])
     vid = cv2.VideoCapture(filename)
     ret = True
     
@@ -57,14 +45,9 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
         # construct a blob from the input image and then perform a forward
         # pass of the YOLO object detector, giving us our bounding boxes and
         # associated probabilities
-        blob = cv2.dnn.blobFromImage(frame, 1 / 255.0, (416, 416),
-            swapRB=True, crop=False)
+        blob = cv2.dnn.blobFromImage(frame, 1 / 255.0, (416, 416), swapRB=True, crop=False)
         net.setInput(blob)
-        # start = time.time()
         layerOutputs = net.forward(ln)
-        # end = time.time()
-        # show timing information on YOLO
-        # print("[INFO] YOLO took {:.6f} seconds".format(end - start))
 
         # initialize our lists of detected bounding boxes, confidences, and
         # class IDs, respectively
@@ -72,7 +55,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
         confidences = []
         classIDs = []
 
-                # loop over each of the layer outputs
+            # loop over each of the layer outputs
         for output in layerOutputs:
             # loop over each of the detections
             for detection in output:
@@ -124,10 +107,6 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
             break
         
         fr_no += 1
-        
-        # show the output image
-        #cv2.imshow("Output", frame)
-        #cv2.waitKey(0)
         
     
     print("[INFO] YOLO took {:.3f} minutes".format((time.time() - start)/60))
