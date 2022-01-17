@@ -11,7 +11,7 @@ from imutils.video import VideoStream
 
 def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
     
-    labelspath = os.path.join("obj.names")
+    labelspath = os.path.join(os.path.dirname(os.getcwd()), "Trained", "obj.names")
     configpath = os.path.join(os.path.dirname(os.getcwd()), "Trained", "yolov4-custom.cfg")
     weightspath = os.path.join(os.path.dirname(os.getcwd()), "Trained", "yolov4-custom_best_5200.weights")
     
@@ -24,7 +24,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
     net = cv2.dnn.readNetFromDarknet(configpath, weightspath)
 
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-    writer = cv2.VideoWriter('output/objectdetection_yolo.avi', fourcc, 30, (800, 600), True)
+    writer = cv2.VideoWriter('output/objectdetection_ours.avi', fourcc, 30, (800, 600), True)
 
     vid = cv2.VideoCapture(filename)
     ret = True
@@ -36,12 +36,12 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
     while(ret):
         ret, frame = vid.read()
         if not ret:
-            print("Error")
+            break
                 
         (H, W) = frame.shape[:2]
         # determine only the *output* layer names that we need from YOLO
         ln = net.getLayerNames()
-        ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+        ln = [ln[i - 1] for i in net.getUnconnectedOutLayers()]
         # construct a blob from the input image and then perform a forward
         # pass of the YOLO object detector, giving us our bounding boxes and
         # associated probabilities
@@ -106,16 +106,19 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
         if fr_no >= fr_limit:
             break
         
+        if fr_no%200 == 0:
+            print(fr_no)
+        
         fr_no += 1
         
     
-    print("[INFO] YOLO took {:.3f} minutes".format((time.time() - start)/60))
+    print("[INFO] YOLO took {:.2f} minutes".format((time.time() - start)/60))
     
     writer.release()
     vid.release()
     
 
-viddirpath = os.path.join(os.path.dirname(os.getcwd()), "Data")
-vidname = "20200323_155250.mp4"
+viddirpath = os.path.join(os.path.dirname(os.getcwd()), "Videos")
+vidname = "190010.mp4"
 
-object_detection(os.path.join(viddirpath, vidname), fr_limit=500)
+object_detection(os.path.join(viddirpath, vidname), fr_limit=3500)
