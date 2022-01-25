@@ -7,10 +7,17 @@ import time
 
 from imutils.video import VideoStream
 
+output = open("output_yolo.txt", "r+")
+class_dict = {'car': 0,
+              'bicycle': 1,
+              'motorbike': 2,
+              'bus': 3,
+              'truck': 4}
 
 # https://www.pyimagesearch.com/2017/09/11/object-detection-with-deep-learning-and-opencv/
 
-def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
+
+def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=output):
     labelspath = "YOLO Model/darknet/coco.names"
     configpath = "YOLO Model/darknet/yolov3-320.cfg"
     weightspath = "YOLO Model/darknet/yolov3-320.weights"
@@ -24,7 +31,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
     net = cv2.dnn.readNetFromDarknet(configpath, weightspath)
 
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-    writer = cv2.VideoWriter('output/objectdetection_yolo.avi', fourcc, 30, (800, 600), True)
+    writer = cv2.VideoWriter('output/sunny_objectdetection_yolo.avi', fourcc, 30, (800, 600), True)
 
     vid = cv2.VideoCapture(filename)
     ret = True
@@ -97,12 +104,17 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
                 # extract the bounding box coordinates
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
+
                 # draw a bounding box rectangle and label on the image
                 color = [int(c) for c in COLORS[classIDs[i]]]
                 cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
                 text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
                 cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
                             0.5, color, 2)
+                if LABELS[classIDs[i]] in class_dict.keys():
+                    L = [str(class_dict[LABELS[classIDs[i]]]), str(), str()]
+                    output.writelines('\n'.join(L) + '\n')
+                    output.write("")
                 cv2.putText(frame, 'Vehicles Detected: ' + str(counter), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, color=(255, 0, 0), thickness=2)
 
         writer.write(cv2.resize(frame, (800, 600)))
@@ -114,8 +126,9 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
 
     print("[INFO] YOLO took {:.3f} minutes".format((time.time() - start) / 60))
 
+    output.close()
     writer.release()
     vid.release()
 
 
-object_detection("E:/vehicle-detection-classification-opencv/CV Vids/20200323_155250.mp4", fr_limit=500)
+object_detection("E:/vehicle-detection-classification-opencv/CV Vids/Video 2 and sunnyTest.mp4", fr_limit=500,  output=output)
