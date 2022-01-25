@@ -8,13 +8,13 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-
-labelspath = os.path.join("Mask RCNN", "mask_rcnn", "mask-rcnn-coco","object_detection_classes_coco.txt")
-colorspath = os.path.join("Mask RCNN", "mask_rcnn", "mask-rcnn-coco","colors.txt")
-weightspath = os.path.join("Mask RCNN", "mask_rcnn", "mask-rcnn-coco","frozen_inference_graph.pb")
-configpath = os.path.join("Mask RCNN", "mask_rcnn", "mask-rcnn-coco","mask_rcnn_inception_v2_coco_2018_01_28.pbtxt")
-
 def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=500):
+    
+    labelspath = os.path.join("Mask RCNN", "mask_rcnn", "mask-rcnn-coco","object_detection_classes_coco.txt")
+    colorspath = os.path.join("Mask RCNN", "mask_rcnn", "mask-rcnn-coco","colors.txt")
+    weightspath = os.path.join("Mask RCNN", "mask_rcnn", "mask-rcnn-coco","frozen_inference_graph.pb")
+    configpath = os.path.join("Mask RCNN", "mask_rcnn", "mask-rcnn-coco","mask_rcnn_inception_v2_coco_2018_01_28.pbtxt")
+    
     labels = open(labelspath).read().strip().split("\n")
     
     colors = np.random.uniform(0, 255, size=(len(labels), 3))
