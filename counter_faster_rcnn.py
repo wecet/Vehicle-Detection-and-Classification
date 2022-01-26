@@ -17,12 +17,19 @@ warnings.filterwarnings("ignore")
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
 model.eval()
 
+output = open("output_faster_rcnn_Video_2.txt", "r+")
+class_dict = {'car': 0,
+              'bicycle': 1,
+              'motorbike': 2,
+              'bus': 3,
+              'truck': 4}
+
 # Class labels from official PyTorch documentation for the pretrained model
 # Note that there are some N/A's
 # for complete list check https://tech.amikelive.com/node-718/what-object-categories-labels-are-in-coco-dataset/
 # we will use the same list for this notebook
 COCO_INSTANCE_CATEGORY_NAMES = [
-    '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
+    '__background__', 'person', 'bicycle', 'car', 'motorbike', 'airplane', 'bus',
     'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
     'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
     'elephant', 'bear', 'zebra', 'giraffe', 'N/A', 'backpack', 'umbrella', 'N/A', 'N/A',
@@ -71,7 +78,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
         - threshold - threshold value for prediction score
         - rect_th - thickness of bounding box
         - text_size - size of the class label text
-        - text_th - thichness of the text
+        - text_th - thickness of the text
     method:
         - prediction is obtained from get_prediction method
         - for each prediction, bounding box is drawn and text is written
@@ -79,7 +86,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
         - the final image is displayed
     """
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-    writer = cv2.VideoWriter('output/objectdetection_faster_rcnn.avi', fourcc, 30, (800, 600), True)
+    writer = cv2.VideoWriter('output/sunny_objectdetection_faster_rcnn.avi', fourcc, 30, (800, 600), True)
 
     # image = cv2.imread(args["image"])
     vid = cv2.VideoCapture(vid_path)
@@ -97,6 +104,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
             print("Error")
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        h, w, c = frame.shape
         boxes, pred_cls = get_prediction(Image.fromarray(frame), threshold)
         color_index = set(pred_cls)
         COLORS = np.random.uniform(0, 255, size=(len(color_index), 3))
@@ -105,11 +113,18 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
         for i in range(len(boxes)):
             pt1 = (int(boxes[i][0][0]), int(boxes[i][0][1]))
             pt2 = (int(boxes[i][1][0]), int(boxes[i][1][1]))
+            x = boxes[i][0][0]
+            y = boxes[i][0][1]
+            width = (boxes[i][1][0] - x)
+            height = (boxes[i][1][1] - y)
             cv2.rectangle(frame, pt1, pt2, color=list(color_index).index(pred_cls[i]), thickness=rect_th)
             cv2.putText(frame, pred_cls[i], pt1, cv2.FONT_HERSHEY_SIMPLEX, text_size,
                         list(color_index).index(pred_cls[i]), thickness=text_th)
+            if pred_cls[i] in class_dict.keys():
+                L = [str(class_dict[pred_cls[i]]), str(width), str(height)]
+                output.writelines('\n'.join(L))
 
-        cv2.putText(frame, 'Vehicles Detected: '+ str(counter), (50,50), cv2.FONT_HERSHEY_COMPLEX, text_size, color=(255,0,0), thickness=text_th)
+        cv2.putText(frame, 'Vehicles Detected: ' + str(counter), (50,50), cv2.FONT_HERSHEY_COMPLEX, text_size, color=(255,0,0), thickness=text_th)
         writer.write(cv2.resize(frame, (800, 600)))
 
         if fr_no % 100 == 0:
@@ -120,11 +135,12 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
 
         fr_no += 1
 
-    print("[INFO] FasterRCNN took {:.3f} minutes".format((time.time() - start) / 60))
+    print("[INFO] FasterRCNN took :.3f} minutes".format((time.time() - start) / 60))
 
+    output.close()
     writer.release()
     vid.release()
 
 
-object_detection_api("E:/vehicle-detection-classification-opencv/CV Vids/20200323_155250.mp4")
+object_detection_api("E:/vehicle-detection-classification-opencv/CV Vids/Video 2 and sunnyTest.mp4")
 
