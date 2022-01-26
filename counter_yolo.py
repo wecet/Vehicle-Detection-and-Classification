@@ -112,7 +112,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=outp
                 cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
                             0.5, color, 2)
                 if LABELS[classIDs[i]] in class_dict.keys():
-                    L = [str(class_dict[LABELS[classIDs[i]]]), str(x / W), str(y / H), str(w / W), str(h / H)]
+                    L = [str(class_dict[LABELS[classIDs[i]]]), str(confidences[i]), str(x / W), str(y / H), str(w / W), str(h / H)]
                     LS.append(" ".join(L))
                 
                 cv2.putText(frame, 'Vehicles Detected: ' + str(counter), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, color=(255, 0, 0), thickness=2)

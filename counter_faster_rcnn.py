@@ -68,7 +68,7 @@ def get_prediction(img_cv, threshold):
         return None
     pred_boxes = pred_boxes[:pred_t[-1] + 1]
     pred_class = pred_class[:pred_t[-1] + 1]
-    return pred_boxes, pred_class
+    return pred_boxes, pred_class, pred_score
 
 
 def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text_th=2, fr_limit=500):
@@ -115,7 +115,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
             fr_no += 1
             continue
         else:    
-            boxes, pred_cls = predictions
+            boxes, pred_cls, pred_scr = predictions
         color_index = set(pred_cls)
         COLORS = np.random.uniform(0, 255, size=(len(color_index), 3))
         counter = len(boxes)
@@ -133,7 +133,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
             cv2.putText(frame, pred_cls[i], pt1, cv2.FONT_HERSHEY_SIMPLEX, text_size,
                         list(color_index).index(pred_cls[i]), thickness=text_th)
             if pred_cls[i] in class_dict.keys():
-                L = [str(class_dict[pred_cls[i]]), str(x / w) , str(y / h),str(width / w), str(height / h)]
+                L = [str(class_dict[pred_cls[i]]), str(pred_scr), str(x / w) , str(y / h),str(width / w), str(height / h)]
                 # output_txt.writelines(' '.join(L))
                 LS.append(' '.join(L))
 
