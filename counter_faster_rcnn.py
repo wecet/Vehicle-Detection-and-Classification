@@ -141,7 +141,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
         writer.write(cv2.resize(frame, (800, 600)))
 
         
-        output_txt = open("Predicted_Anns_Faster/footage2/" + str(fr_no) + ".txt", "w")
+        output_txt = open("Predicted_Anns_Faster/footage2/" + str(fr_no+1).zfill(4) + ".txt", "w")
         output_txt.writelines(LS)
         output_txt.close()
 
@@ -151,7 +151,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
             
         if fr_no >= fr_limit:
             break
-
+        
         fr_no += 1
 
 
