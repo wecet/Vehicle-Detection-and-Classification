@@ -17,7 +17,6 @@ warnings.filterwarnings("ignore")
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
 model.eval()
 
-output_txt = open("output_footage2.txt", "w")
 class_dict = {'car': 0,
               'bicycle': 1,
               'motorbike': 2,
@@ -64,9 +63,11 @@ def get_prediction(img_cv, threshold):
     pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())]
     pred_score = list(pred[0]['scores'].detach().numpy())
     # print("iteration")
-    pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1]
-    pred_boxes = pred_boxes[:pred_t + 1]
-    pred_class = pred_class[:pred_t + 1]
+    pred_t = [pred_score.index(x) for x in pred_score if x > threshold]
+    if len(pred_t) == 0:
+        return None
+    pred_boxes = pred_boxes[:pred_t[-1] + 1]
+    pred_class = pred_class[:pred_t[-1] + 1]
     return pred_boxes, pred_class
 
 
@@ -101,15 +102,26 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
 
         ret, frame = vid.read()
         if not ret:
-            print("Error")
+            break
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         h, w, c = frame.shape
-        boxes, pred_cls = get_prediction(Image.fromarray(frame), threshold)
+        predictions = get_prediction(Image.fromarray(frame), threshold)
+        if predictions is None:
+            # create empty folder
+            output_txt = open("Predicted_Anns_Faster/footage2/" + str(fr_no) + ".txt", "w")
+            output_txt.write("")
+            output_txt.close()
+            fr_no += 1
+            continue
+        else:    
+            boxes, pred_cls = predictions
         color_index = set(pred_cls)
         COLORS = np.random.uniform(0, 255, size=(len(color_index), 3))
         counter = len(boxes)
 
+        LS = []
+        
         for i in range(len(boxes)):
             pt1 = (int(boxes[i][0][0]), int(boxes[i][0][1]))
             pt2 = (int(boxes[i][1][0]), int(boxes[i][1][1]))
@@ -122,30 +134,34 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
                         list(color_index).index(pred_cls[i]), thickness=text_th)
             if pred_cls[i] in class_dict.keys():
                 L = [str(class_dict[pred_cls[i]]), str(x / w) , str(y / h),str(width / w), str(height / h)]
-                output_txt.writelines('\n'.join(L))
-                
-            if fr_no == 1:
-                print(L)
+                # output_txt.writelines(' '.join(L))
+                LS.append(' '.join(L))
 
         cv2.putText(frame, 'Vehicles Detected: ' + str(counter), (50,50), cv2.FONT_HERSHEY_COMPLEX, text_size, color=(255,0,0), thickness=text_th)
         writer.write(cv2.resize(frame, (800, 600)))
 
+        
+        output_txt = open("Predicted_Anns_Faster/footage2/" + str(fr_no) + ".txt", "w")
+        output_txt.writelines(LS)
+        output_txt.close()
+
+
         if fr_no % 100 == 0:
             print(fr_no)
-
+            
         if fr_no >= fr_limit:
             break
 
         fr_no += 1
 
-    print("[INFO] FasterRCNN took :.3f} minutes".format((time.time() - start) / 60))
 
-    output_txt.close()
+    print("[INFO] FasterRCNN took {:.3f} minutes".format((time.time() - start) / 60))
+    
     writer.release()
     vid.release()
 
 viddirpath = os.path.join(os.path.dirname(os.getcwd()), "Videos")
 vidname = "footage2.mp4"
 
-object_detection_api(os.path.join(viddirpath, vidname), fr_limit=200)
+object_detection_api(os.path.join(viddirpath, vidname), fr_limit=1817)
 

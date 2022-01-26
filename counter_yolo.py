@@ -7,7 +7,6 @@ import time
 
 from imutils.video import VideoStream
 
-output = open("output_yolo.txt", "r+")
 class_dict = {'car': 0,
               'bicycle': 1,
               'motorbike': 2,
@@ -96,6 +95,13 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=outp
         # boxes
         idxs = cv2.dnn.NMSBoxes(boxes, confidences, conf_t, thresh)
 
+        if len(idxs) == 0:
+            output_txt = open("Predicted_Anns_YOLO/footage2/" + str(fr_no) + ".txt", "w")
+            output_txt.write("")
+            output_txt.close()
+            fr_no += 1
+
+        LS = []
         # ensure at least one detection exists
         if len(idxs) > 0:
             counter = len(idxs)
@@ -112,12 +118,16 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=outp
                 cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
                             0.5, color, 2)
                 if LABELS[classIDs[i]] in class_dict.keys():
-                    L = [str(class_dict[LABELS[classIDs[i]]]), str(), str()]
-                    output.writelines('\n'.join(L) + '\n')
-                    output.write("")
+                    L = [str(class_dict[LABELS[classIDs[i]]]), str(x / W), str(y / H), str(w / W), str(h / H)]
+                    LS.append(" ".join(L))
+                
                 cv2.putText(frame, 'Vehicles Detected: ' + str(counter), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, color=(255, 0, 0), thickness=2)
 
         writer.write(cv2.resize(frame, (800, 600)))
+        
+        output_txt = open("Predicted_Anns_YOLO/footage2/" + str(fr_no) + ".txt", "w")
+        output_txt.writelines(LS)
+        output_txt.close()
 
         if fr_no >= fr_limit:
             break
@@ -126,7 +136,6 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=outp
 
     print("[INFO] YOLO took {:.3f} minutes".format((time.time() - start) / 60))
 
-    output.close()
     writer.release()
     vid.release()
 

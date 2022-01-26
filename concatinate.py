@@ -1,8 +1,9 @@
 import os
 
-directory = 'annotations/rainTest'
+directory = 'Annotations/footage2'
 
-with open('annotations/rainTest.txt', 'w') as outfile:
+count = 0
+with open('Full_Annotation/footage2.txt', 'w') as outfile:
     for filename in os.listdir(directory):
         f = os.path.join(directory, filename)
         with open(f) as infile:
