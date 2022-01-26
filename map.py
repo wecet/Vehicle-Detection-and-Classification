@@ -19,6 +19,7 @@ parser.add_argument('-q', '--quiet', help="minimalistic console output.", action
 parser.add_argument('-i', '--ignore', nargs='+', type=str, help="ignore a list of classes.")
 # argparse receiving list of classes with specific IoU (e.g., python main.py --set-class-iou person 0.7)
 parser.add_argument('--set-class-iou', nargs='+', type=str, help="set IoU for a specific class.")
+
 args = parser.parse_args()
 
 '''
@@ -44,8 +45,8 @@ if args.set_class_iou is not None:
 # make sure that the cwd() is the location of the python script (so that every path makes sense)
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-GT_PATH = os.path.join(os.getcwd(), 'input', 'ground-truth')
-DR_PATH = os.path.join(os.getcwd(), 'input', 'detection-results')
+GT_PATH = os.path.join(os.getcwd(), 'Actual_Anns', 'footage2')
+DR_PATH = os.path.join(os.getcwd(), 'Predicted_Anns_Faster', 'footage2')
 # if there are no images then no animation can be shown
 # IMG_PATH = os.path.join(os.getcwd(), 'input', 'images-optional')
 # if os.path.exists(IMG_PATH):
