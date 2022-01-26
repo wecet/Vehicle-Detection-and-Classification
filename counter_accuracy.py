@@ -1,9 +1,10 @@
 import os
 import numpy as np
+from statistics import mean
 
-directory_actual = ''
+directory_actual = 'Actual_Anns/footage2'
 
-directory_predicted = ''
+directory_predicted = 'Predicted_Anns_Faster/footage2'
 
 actual_count = []
 pred_count = []
@@ -11,17 +12,20 @@ pred_count = []
 for filename in os.listdir(directory_actual):
     f = os.path.join(directory_actual, filename)
     with open(f, "r") as infile:
-        actual_count.append(infile.readlines())
+        actual_count.append(len(infile.readlines()))
         
 for filename in os.listdir(directory_predicted):
     f = os.path.join(directory_predicted, filename)
     with open(f, "r") as infile:
-        pred_count.append(infile.readlines())
-        
-actual_count = np.array(actual_count)
-pred_count = np.array(pred_count)
+        pred_count.append(len(infile.readlines()))
 
-scores = np.divide(pred_count, actual_count)
-score = np.mean(scores)
+avg = []
+
+for i in range(len(actual_count)):
+    if actual_count[i] == 0:
+        continue
+    avg.append(float(pred_count[i]/actual_count[i]))
+    
+score = mean(avg)
 
 print(score)
