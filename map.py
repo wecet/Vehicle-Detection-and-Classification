@@ -48,14 +48,14 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 GT_PATH = os.path.join(os.getcwd(), 'Actual_Anns', 'footage2')
 DR_PATH = os.path.join(os.getcwd(), 'Predicted_Anns_Faster', 'footage2')
 # if there are no images then no animation can be shown
-# IMG_PATH = os.path.join(os.getcwd(), 'input', 'images-optional')
-# if os.path.exists(IMG_PATH):
-#     for dirpath, dirnames, files in os.walk(IMG_PATH):
-#         if not files:
-#             # no image files found
-#             args.no_animation = True
-# else:
-#     args.no_animation = True
+IMG_PATH = os.path.join(os.getcwd(), 'input', 'images-optional')
+if os.path.exists(IMG_PATH):
+    for dirpath, dirnames, files in os.walk(IMG_PATH):
+        if not files:
+            # no image files found
+            args.no_animation = True
+else:
+    args.no_animation = True
 
 # try to import OpenCV if the user didn't choose the option --no-animation
 show_animation = False

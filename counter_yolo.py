@@ -13,10 +13,11 @@ class_dict = {'car': 0,
               'bus': 3,
               'truck': 4}
 
+
 # https://www.pyimagesearch.com/2017/09/11/object-detection-with-deep-learning-and-opencv/
 
 
-def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=output):
+def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
     labelspath = "YOLO Model/darknet/coco.names"
     configpath = "YOLO Model/darknet/yolov3-320.cfg"
     weightspath = "YOLO Model/darknet/yolov3-320.weights"
@@ -95,16 +96,11 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=outp
         # boxes
         idxs = cv2.dnn.NMSBoxes(boxes, confidences, conf_t, thresh)
 
-        if len(idxs) == 0:
-            output_txt = open("Predicted_Anns_YOLO/footage2/" + str(fr_no) + ".txt", "w")
-            output_txt.write("")
-            output_txt.close()
-            fr_no += 1
-
         LS = []
         # ensure at least one detection exists
         if len(idxs) > 0:
-            counter = len(idxs)
+            car_counter = 0
+            motorbike_counter = 0
             # loop over the indexes we are keeping
             for i in idxs.flatten():
                 # extract the bounding box coordinates
@@ -118,15 +114,27 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=outp
                 cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
                             0.5, color, 2)
                 if LABELS[classIDs[i]] in class_dict.keys():
-                    L = [str(class_dict[LABELS[classIDs[i]]]), str(x / W), str(y / H), str(w / W), str(h / H)]
+                    L = [str(class_dict[LABELS[classIDs[i]]]), str(confidences[i]), str(x / W), str(y / H), str(w / W),
+                         str(h / H)]
                     LS.append(" ".join(L))
-                
-                cv2.putText(frame, 'Vehicles Detected: ' + str(counter), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, color=(255, 0, 0), thickness=2)
+
+                if LABELS[classIDs[i]] == 'car':
+                    car_counter += 1
+                elif LABELS[classIDs[i]] == 'motorbike':
+                    motorbike_counter += 1
+
+                cv2.putText(frame, 'Cars Detected: ' + str(car_counter), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5,
+                            color=(255, 0, 0), thickness=2)
+                cv2.putText(frame, 'Motorbikes Detected: ' + str(motorbike_counter), (50, 70), cv2.FONT_HERSHEY_COMPLEX, 0.5,
+                            color=(255, 0, 0), thickness=2)
 
         writer.write(cv2.resize(frame, (800, 600)))
-        
-        output_txt = open("Predicted_Anns_YOLO/footage2/" + str(fr_no) + ".txt", "w")
-        output_txt.writelines(LS)
+
+        output_txt = open("Predicted_Anns_YOLO/footage2/" + str(fr_no + 1).zfill(4) + ".txt", "w")
+        if len(LS) > 0:
+            output_txt.write("\n".join(LS))
+        else:
+            output_txt.write("")
         output_txt.close()
 
         if fr_no >= fr_limit:
@@ -140,4 +148,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=outp
     vid.release()
 
 
-object_detection("E:/vehicle-detection-classification-opencv/CV Vids/Video 2 and sunnyTest.mp4", fr_limit=500,  output=output)
+viddirpath = os.path.join(os.path.dirname(os.getcwd()), "Videos")
+vidname = "footage2.mp4"
+
+object_detection(os.path.join(viddirpath, vidname), fr_limit=100)
