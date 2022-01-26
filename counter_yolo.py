@@ -16,7 +16,7 @@ class_dict = {'car': 0,
 # https://www.pyimagesearch.com/2017/09/11/object-detection-with-deep-learning-and-opencv/
 
 
-def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=output):
+def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300):
     labelspath = "YOLO Model/darknet/coco.names"
     configpath = "YOLO Model/darknet/yolov3-320.cfg"
     weightspath = "YOLO Model/darknet/yolov3-320.weights"
@@ -136,5 +136,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=outp
     writer.release()
     vid.release()
 
+viddirpath = os.path.join(os.path.dirname(os.getcwd()), "Videos")
+vidname = "footage2.mp4"
 
-object_detection("E:/vehicle-detection-classification-opencv/CV Vids/Video 2 and sunnyTest.mp4", fr_limit=500,  output=output)
+object_detection(os.path.join(viddirpath, vidname), fr_limit=100)
