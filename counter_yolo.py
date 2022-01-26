@@ -95,12 +95,6 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=outp
         # boxes
         idxs = cv2.dnn.NMSBoxes(boxes, confidences, conf_t, thresh)
 
-        if len(idxs) == 0:
-            output_txt = open("Predicted_Anns_YOLO/footage2/" + str(fr_no) + ".txt", "w")
-            output_txt.write("")
-            output_txt.close()
-            fr_no += 1
-
         LS = []
         # ensure at least one detection exists
         if len(idxs) > 0:
@@ -126,7 +120,10 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=outp
         writer.write(cv2.resize(frame, (800, 600)))
         
         output_txt = open("Predicted_Anns_YOLO/footage2/" + str(fr_no+1).zfill(4) + ".txt", "w")
-        output_txt.writelines(LS)
+        if len(LS) > 0:
+            output_txt.writelines(LS)
+        else:
+            output_txt.write("")
         output_txt.close()
 
         if fr_no >= fr_limit:

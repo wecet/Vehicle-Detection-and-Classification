@@ -109,7 +109,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
         predictions = get_prediction(Image.fromarray(frame), threshold)
         if predictions is None:
             # create empty folder
-            output_txt = open("Predicted_Anns_Faster/footage2/" + str(fr_no) + ".txt", "w")
+            output_txt = open("Predicted_Anns_Faster/footage2/" + str(fr_no+1).zfill(4) + ".txt", "w")
             output_txt.write("")
             output_txt.close()
             fr_no += 1
