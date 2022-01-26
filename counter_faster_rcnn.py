@@ -88,7 +88,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
         - the final image is displayed
     """
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-    writer = cv2.VideoWriter('output/output_footage2.avi', fourcc, 30, (800, 600), True)
+    writer = cv2.VideoWriter('output/output_rainTest.avi', fourcc, 30, (800, 600), True)
 
     # image = cv2.imread(args["image"])
     vid = cv2.VideoCapture(vid_path)
@@ -110,19 +110,21 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
         predictions = get_prediction(Image.fromarray(frame), threshold)
         if predictions is None:
             # create empty folder
-            output_txt = open("Predicted_Anns_Faster/footage2/" + str(fr_no+1).zfill(4) + ".txt", "w")
+            output_txt = open("Predicted_Anns_Faster/Video2/" + str(fr_no + 1).zfill(4) + ".txt", "w")
             output_txt.write("")
             output_txt.close()
             fr_no += 1
             continue
-        else:    
+        else:
             boxes, pred_cls, pred_scr = predictions
         color_index = set(pred_cls)
         COLORS = np.random.uniform(0, 255, size=(len(color_index), 3))
         counter = len(boxes)
 
         LS = []
-        
+        car_counter = 0
+        motorbike_counter = 0
+
         for i in range(len(boxes)):
             L = []
             pt1 = (int(boxes[i][0][0]), int(boxes[i][0][1]))
@@ -135,35 +137,38 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
             cv2.putText(frame, pred_cls[i], pt1, cv2.FONT_HERSHEY_SIMPLEX, text_size,
                         list(color_index).index(pred_cls[i]), thickness=text_th)
             if pred_cls[i] in class_dict.keys():
-                L = [str(class_dict[pred_cls[i]]), str(pred_scr[i]), str(x / w) , str(y / h),str(width / w), str(height / h)]
+                L = [str(class_dict[pred_cls[i]]), str(pred_scr[i]), str(x / w), str(y / h), str(width / w),
+                     str(height / h)]
                 # output_txt.writelines(' '.join(L))
                 LS.append(' '.join(L))
 
-        cv2.putText(frame, 'Vehicles Detected: ' + str(counter), (50,50), cv2.FONT_HERSHEY_COMPLEX, text_size, color=(255,0,0), thickness=text_th)
+        if pred_cls[i] == 'car':
+            car_counter += 1
+        elif pred_cls[i] == 'motorbike':
+            motorbike_counter += 1
+
+        cv2.putText(frame, 'Cars Detected: ' + str(car_counter), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5,
+                    color=(255, 0, 0), thickness=2)
+        cv2.putText(frame, 'Motorbikes Detected: ' + str(motorbike_counter), (50, 70), cv2.FONT_HERSHEY_COMPLEX, 0.5,
+                    color=(255, 0, 0), thickness=2)
+
         writer.write(cv2.resize(frame, (800, 600)))
 
-        
-        output_txt = open("Predicted_Anns_Faster/footage2/" + str(fr_no+1).zfill(4) + ".txt", "w")
+        output_txt = open("Predicted_Anns_Faster/rainTest/" + str(fr_no + 1).zfill(4) + ".txt", "w")
         output_txt.write("\n".join(LS))
         output_txt.close()
 
-
         if fr_no % 100 == 0:
             print(fr_no)
-            
+
         if fr_no >= fr_limit:
             break
-        
+
         fr_no += 1
 
-
     print("[INFO] FasterRCNN took {:.3f} minutes".format((time.time() - start) / 60))
-    
+
     writer.release()
     vid.release()
 
-viddirpath = os.path.join(os.path.dirname(os.getcwd()), "Videos")
-vidname = "footage2.mp4"
-
-object_detection_api(os.path.join(viddirpath, vidname), fr_limit=100)
-
+object_detection_api("E:/vehicle-detection-classification-opencv/CV Vids/rainTest.mp4", fr_limit=200)
