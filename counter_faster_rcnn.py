@@ -163,5 +163,5 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
 viddirpath = os.path.join(os.path.dirname(os.getcwd()), "Videos")
 vidname = "footage2.mp4"
 
-object_detection_api(os.path.join(viddirpath, vidname), fr_limit=1817)
+object_detection_api(os.path.join(viddirpath, vidname), fr_limit=100)
 
