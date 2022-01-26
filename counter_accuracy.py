@@ -24,8 +24,9 @@ avg = []
 for i in range(len(actual_count)):
     if actual_count[i] == 0:
         continue
-    avg.append(float(pred_count[i]/actual_count[i]))
+    diff = abs(pred_count[i] - actual_count[i])
+    avg.append(float(diff/actual_count[i]))
     
-score = mean(avg)
+score = 1 - mean(avg)
 
 print(score)
