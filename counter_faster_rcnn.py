@@ -64,11 +64,12 @@ def get_prediction(img_cv, threshold):
     pred_score = list(pred[0]['scores'].detach().numpy())
     # print("iteration")
     pred_t = [pred_score.index(x) for x in pred_score if x > threshold]
+    pred_show = [x for x in pred_score if x > threshold]
     if len(pred_t) == 0:
         return None
     pred_boxes = pred_boxes[:pred_t[-1] + 1]
     pred_class = pred_class[:pred_t[-1] + 1]
-    return pred_boxes, pred_class, pred_score
+    return pred_boxes, pred_class, pred_show
 
 
 def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text_th=2, fr_limit=500):
@@ -123,6 +124,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
         LS = []
         
         for i in range(len(boxes)):
+            L = []
             pt1 = (int(boxes[i][0][0]), int(boxes[i][0][1]))
             pt2 = (int(boxes[i][1][0]), int(boxes[i][1][1]))
             x = boxes[i][0][0]
@@ -133,7 +135,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
             cv2.putText(frame, pred_cls[i], pt1, cv2.FONT_HERSHEY_SIMPLEX, text_size,
                         list(color_index).index(pred_cls[i]), thickness=text_th)
             if pred_cls[i] in class_dict.keys():
-                L = [str(class_dict[pred_cls[i]]), str(pred_scr), str(x / w) , str(y / h),str(width / w), str(height / h)]
+                L = [str(class_dict[pred_cls[i]]), str(pred_scr[i]), str(x / w) , str(y / h),str(width / w), str(height / h)]
                 # output_txt.writelines(' '.join(L))
                 LS.append(' '.join(L))
 
@@ -142,7 +144,7 @@ def object_detection_api(vid_path, threshold=0.7, rect_th=2, text_size=0.5, text
 
         
         output_txt = open("Predicted_Anns_Faster/footage2/" + str(fr_no+1).zfill(4) + ".txt", "w")
-        output_txt.writelines(LS)
+        output_txt.write("\n".join(LS))
         output_txt.close()
 
 

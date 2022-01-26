@@ -121,7 +121,7 @@ def object_detection(filename, conf_t=0.5, thresh=0.3, fr_limit=300, output=outp
         
         output_txt = open("Predicted_Anns_YOLO/footage2/" + str(fr_no+1).zfill(4) + ".txt", "w")
         if len(LS) > 0:
-            output_txt.writelines(LS)
+            output_txt.write("\n".join(LS))
         else:
             output_txt.write("")
         output_txt.close()
